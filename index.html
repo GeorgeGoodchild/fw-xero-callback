@@ -54,7 +54,7 @@
                 var invoice_number = getQueryStringValue("invoice_number");
 
                 var recipient = null;
-                var callback_url = "https://my-domain.org/flywire-notifications";
+                var callback_url = "https://k2o0q2gqk8.execute-api.us-west-2.amazonaws.com/default/processFlywireNotification";
                 var callback_id = invoice_number + '_' + (new Date).getTime();
 
                 if (env === "demo") {
