@@ -1,0 +1,92 @@
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <script src="https://payment.flywire.com/assets/js/flywire.js"></script>
+
+    <style>
+        #content {
+            visibility: hidden;
+        }
+
+        .error {
+            border: solid 1px #F5C6CB;
+            background-color: #F8D7DA;
+            color: #721C24;
+            padding: 10px;
+            border-radius: 2px;
+            margin: 0 auto;
+            width: 550px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="content">    
+        <div class="error">
+            <span id="message"></span>
+        </div>
+    </div>
+
+    <div id="payment-container"></div>
+        
+    <script>
+        function getQueryStringValue (key) {
+
+            var val = decodeURIComponent(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + encodeURIComponent(key).replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"));  
+
+            if (!val) {
+                throw new Error("Key '" + key + "' is not present in the URL query string.");
+            }
+            return val;
+        }
+
+        function showError(message){
+            document.getElementById("message").innerText = (message || "Sorry, there was an error.");;
+            document.getElementById("content").style.visibility = "visible";
+        }  
+
+        (function() {
+            try {
+                var env = getQueryStringValue("env");
+                var amount = parseFloat(getQueryStringValue("amount"));
+                var invoice_number = getQueryStringValue("invoice_number");
+
+                var recipient = null;
+                var callback_url = "https://my-domain.org/flywire-notifications";
+                var callback_id = invoice_number + '_' + (new Date).getTime();
+
+                if (env === "demo") {
+                    recipient = "PND"
+                } else if (env === "prod") {
+                    recipient = "PNB"
+                }
+                else {
+                    showError("Env parameter must be set to either 'demo' or 'prod'.");
+                    return;
+                }
+
+                window.flywire.Payment.render({
+                    env: env,
+                    recipient: recipient,
+                    amount: amount * 100,           // Flywire accepts amounts in the minumum sub-units of a currency (e.g. 100 cents rather than 1.00 dollars)
+                    invoice_number: invoice_number,
+                    read_only: "invoice_number",    // This is a comma separated list (e.g. "amount,invoice_number" will also make the amount field read-only)
+                    callback_url: callback_url,
+                    callback_id: callback_id,
+                    theme: {
+                        chat: true,
+                        footer: true,
+                        header: true,
+                        brandColor: "#3498db"
+                    }
+                }, "#payment-container");
+            }
+            catch (err){
+                showError(err.message);
+            }
+        })();
+    </script>
+</body>
+</html>
