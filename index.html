@@ -53,14 +53,17 @@
                 var amount = parseFloat(getQueryStringValue("amount"));
                 var invoice_number = getQueryStringValue("invoice_number");
 
-                var recipient = null;
-                var callback_url = "https://k2o0q2gqk8.execute-api.us-west-2.amazonaws.com/default/processFlywireNotification";
+                var recipient = null, 
+                    callback_url = null;
+
                 var callback_id = invoice_number + '_' + (new Date).getTime();
 
                 if (env === "demo") {
                     recipient = "PND"
+                    callback_url = "https://k2o0q2gqk8.execute-api.us-west-2.amazonaws.com/default/processFlywireNotification";
                 } else if (env === "prod") {
                     recipient = "PNB"
+                    callback_url = "https://my-domain.org/flywire-notifications";
                 }
                 else {
                     showError("Env parameter must be set to either 'demo' or 'prod'.");
